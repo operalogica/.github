@@ -1,0 +1,11 @@
+{
+    "name": "Sonar CI .NET Workflow",
+    "description": "Sonar workflow template for .NET projects.",
+    "iconName": "example-icon",
+    "categories": [
+        "dotnet"
+    ],
+    "filePatterns": [
+        ".csproj$"
+    ]
+}

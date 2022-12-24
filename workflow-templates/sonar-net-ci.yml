@@ -1,0 +1,38 @@
+name: Bepeople Workspace API
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/Services/Workspace'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'src/Services/Workspace'
+
+  workflow_dispatch:
+jobs:
+  sonarcloud:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Install SonarCloud scanners
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet-sonarscanner begin /k:"bepeople-github" /o:"operalogica" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build src/Services/Workspace/bepeople.sln
+          dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
