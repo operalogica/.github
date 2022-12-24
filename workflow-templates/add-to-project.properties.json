@@ -1,0 +1,7 @@
+{
+    "name": "Add to project Workflow",
+    "description": "Add automatically to project issues collected in a repository.",
+    "iconName": "example-icon",
+    "categories": [],
+    "filePatterns": []
+}

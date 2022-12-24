@@ -1,0 +1,24 @@
+name: Add all issues opened to kanban
+
+on:
+  issues:
+    types:
+      - opened
+
+jobs:
+  add-to-project:
+    name: Add issue to global project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v0.4.0
+        with:
+          project-url: {project-url}
+          github-token: {pat-token-secret}
+        id: add-project
+      - uses: titoportas/update-project-fields@v0.1.0
+        with:
+          project-url: {project-url}
+          github-token: ${{ secrets.GHPROJECT_SECRET }}
+          item-id: ${{ steps.add-project.outputs.itemId }} # Use the item-id output of the previous step
+          field-keys: TextField,NumberField,FinishedAt,Size,IterationField
+          field-values: foo,123,2022-09-01,🐋 X-Large,[1]
