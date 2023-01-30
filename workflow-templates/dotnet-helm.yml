@@ -1,0 +1,121 @@
+name: Dotnet sample with helm 
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**'
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '**'
+  workflow_dispatch:
+
+env:
+  CONTAINER_NAME: ""
+  RESOURCE_GROUP: ""
+  CLUSTER_NAME: ""
+  CHART_PATH: ""
+  DOCKER_IMAGE_NAME: ""
+  DOCKER_CONTEXT_PATH: ""
+  DOCKER_FILE_PATH: ""
+  HELM_RELEASE_NAME: ""
+
+jobs:
+  build:
+    name: build and test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Install SonarCloud scanners
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet tool install --global JetBrains.dotCover.GlobalTool
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          dotnet-sonarscanner begin /k:"operalogica_bepeople" /o:"operalogica001" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.dotcover.reportsPaths=dotCover.Output.html /d:sonar.host.url="https://sonarcloud.io"
+          dotnet build src/Services/Backend/operaLogica.BePeople.sln
+          dotnet dotcover test src/Services/Backend/operaLogica.BePeople.sln --dcReportType=HTML
+          dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: 'Docker Login'
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Build the frontend image and push it to ACR
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          context: ${{ env.DOCKER_CONTEXT_PATH }}
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
+          file: ${{ env.DOCKER_FILE_PATH }}
+
+  deploy:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      # Checks out the repository this file is in
+      - uses: actions/checkout@v3
+
+      # Logs in with your Azure credentials
+      - name: Log in with Azure
+        uses: azure/login@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+
+      # Use kubelogin to configure your kubeconfig for Azure auth
+      - name: Set up kubelogin for non-interactive login
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.25'
+
+      # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+      - name: Get K8s context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.RESOURCE_GROUP }}
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          admin: 'false'
+          use-kubelogin: 'true'
+
+      # Runs Helm to create manifest files
+      - name: Bake deployment
+        uses: azure/k8s-bake@v2
+        with:
+          renderEngine: "helm"
+          helmChart: ${{ env.CHART_PATH }}
+          releaseName: ${{ env.HELM_RELEASE_NAME }}
+          overrides: |
+            image.tag:${{ github.sha }}
+          helm-version: "latest"
+        id: bake
+
+      # Deploys application based on manifest files from previous step
+      - name: Deploy application
+        uses: Azure/k8s-deploy@v4
+        with:
+          action: deploy
+          namespace: dev
+          manifests: ${{ steps.bake.outputs.manifestsBundle }}
+          images: |
+            ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
