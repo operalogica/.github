@@ -1,0 +1,7 @@
+{
+    "name": "Dotnet with Sonar and Helm",
+    "description": "Dotnet with Sonar and Helm.",
+    "iconName": "example-icon",
+    "categories": [],
+    "filePatterns": []
+}
