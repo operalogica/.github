@@ -20,6 +20,7 @@ env:
   DOCKER_CONTEXT_PATH: ""
   DOCKER_FILE_PATH: ""
   HELM_RELEASE_NAME: ""
+  CLUSTER_NAMESPACE: ""
 
 jobs:
   build:
@@ -58,7 +59,7 @@ jobs:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Build the frontend image and push it to ACR
+      - name: Build the image and push it to ACR
         uses: docker/build-push-action@v2
         with:
           push: true
@@ -115,7 +116,7 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           action: deploy
-          namespace: dev
+          namespace: ${{ env.CLUSTER_NAMESPACE }}
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
           images: |
             ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
