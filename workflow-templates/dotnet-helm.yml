@@ -12,16 +12,15 @@ on:
   workflow_dispatch:
 
 env:
-  CONTAINER_NAME: ""
-  RESOURCE_GROUP: ""
+  CLUSTER_RESOURCE_GROUP: ""
   CLUSTER_NAME: ""
-  CHART_PATH: ""
-  CONTAINER_REGISTRY_URL: ""
-  DOCKER_IMAGE_NAME: ""
-  DOCKER_CONTEXT_PATH: ""
-  DOCKER_FILE_PATH: ""
-  HELM_RELEASE_NAME: ""
   CLUSTER_NAMESPACE: ""
+  CONTAINER_REGISTRY_URL: ""
+  CONTAINER_REGISTRY_NAME: ""
+  CONTAINER_IMAGE_CONTEXT: ""
+  CONTAINER_IMAGE_PATH: ""
+  RELEASE_NAME: ""
+  RELEASE_CHART_PATH: ""
 
 jobs:
   build:
@@ -64,9 +63,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: ${{ env.DOCKER_CONTEXT_PATH }}
-          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}
-          file: ${{ env.DOCKER_FILE_PATH }}
+          context: ${{ env.CONTAINER_IMAGE_CONTEXT }}
+          tags: ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ env.CONTAINER_REGISTRY_NAME }}:${{ github.sha }}
+          file: ${{ env.CONTAINER_IMAGE_PATH }}
 
   deploy:
     permissions:
@@ -95,7 +94,7 @@ jobs:
       - name: Get K8s context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ env.RESOURCE_GROUP }}
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
           cluster-name: ${{ env.CLUSTER_NAME }}
           admin: 'false'
           use-kubelogin: 'true'
@@ -105,11 +104,11 @@ jobs:
         uses: azure/k8s-bake@v2
         with:
           renderEngine: "helm"
-          helmChart: ${{ env.CHART_PATH }}
-          releaseName: ${{ env.HELM_RELEASE_NAME }}
+          helmChart: ${{ env.RELEASE_CHART_PATH }}
+          releaseName: ${{ env.RELEASE_NAME }}
           overrides: |
             image.tag:${{ github.sha }}
-            image.repository:${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_NAME }}
+            image.repository:${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_REGISTRY_NAME }}
           helm-version: "latest"
         id: bake
 
@@ -121,4 +120,4 @@ jobs:
           namespace: ${{ env.CLUSTER_NAMESPACE }}
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
           images: |
-            ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+            ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_REGISTRY_NAME }}:${{ github.sha }}
