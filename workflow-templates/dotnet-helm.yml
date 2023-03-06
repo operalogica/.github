@@ -16,6 +16,7 @@ env:
   RESOURCE_GROUP: ""
   CLUSTER_NAME: ""
   CHART_PATH: ""
+  CONTAINER_REGISTRY_URL:""
   DOCKER_IMAGE_NAME: ""
   DOCKER_CONTEXT_PATH: ""
   DOCKER_FILE_PATH: ""
@@ -55,7 +56,7 @@ jobs:
       - name: 'Docker Login'
         uses: azure/docker-login@v1
         with:
-          login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
+          login-server: ${{ env.CONTAINER_REGISTRY_URL }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
@@ -108,6 +109,7 @@ jobs:
           releaseName: ${{ env.HELM_RELEASE_NAME }}
           overrides: |
             image.tag:${{ github.sha }}
+            image.repository:${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_NAME }}
           helm-version: "latest"
         id: bake
 
@@ -119,4 +121,4 @@ jobs:
           namespace: ${{ env.CLUSTER_NAMESPACE }}
           manifests: ${{ steps.bake.outputs.manifestsBundle }}
           images: |
-            ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/${{ env.CONTAINER_NAME }}:${{ github.sha }}
+            ${{ env.CONTAINER_REGISTRY_URL }}/${{ env.CONTAINER_NAME }}:${{ github.sha }}
