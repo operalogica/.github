@@ -1,9 +1,9 @@
 # OperaLogica
 
-**OperaLogica** è una *Società Benefit* composta da quattro Business Unit.  
-Siamo una software factory dall’animo umano: crediamo nelle persone come energia unica che guida ogni progetto.  
+**OperaLogica** is a *Benefit Corporation* composed of four Business Units.  
+We are a human-centered software factory: people are the unique energy driving every project.  
 
-Condividiamo la passione per l’innovazione e sviluppiamo soluzioni tecnologiche e digitali con **creatività** e **coraggio**.  
+We share a passion for innovation and develop technological and digital solutions with **creativity** and **courage**.  
 
 [www.operalogica.com](https://www.operalogica.com)
 
@@ -11,21 +11,21 @@ Condividiamo la passione per l’innovazione e sviluppiamo soluzioni tecnologich
 
 ## BePeople – Intelligent Data Experience Platform
 
-**BePeople** è la piattaforma che potenzia l’interazione umana con i dati attraverso:  
-- **AI Generativa**  
-- **Linguaggio Naturale**  
+**BePeople** empowers human interaction with data through:  
+- **Generative AI**  
+- **Natural Language**  
 - **Data Storytelling**  
 
-Domina la trasformazione digitale con l’AI.  
+Lead the digital transformation with AI.  
 
-Richiedi una demo: [www.bepeople.tech](https://www.bepeople.tech)
+Request a demo: [www.bepeople.tech](https://www.bepeople.tech)
 
 ---
 
 ## Mission
-Portare valore concreto alle persone e alle organizzazioni attraverso tecnologie innovative, etiche e sostenibili.
+Deliver tangible value to people and organizations through innovative, ethical, and sustainable technologies.
 
 ---
 
 ## About
-Questo account GitHub raccoglie progetti, soluzioni e strumenti sviluppati dalle Business Unit di **OperaLogica**, per abilitare la trasformazione digitale con un approccio umano-centrico.
+This GitHub account hosts projects, solutions, and tools developed by the Business Units of **OperaLogica**, enabling digital transformation with a human-centered approach.
