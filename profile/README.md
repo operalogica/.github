@@ -5,7 +5,7 @@ Siamo una software factory dall’animo umano: crediamo nelle persone come energ
 
 Condividiamo la passione per l’innovazione e sviluppiamo soluzioni tecnologiche e digitali con **creatività** e **coraggio**.  
 
-🌍 [www.operalogica.com](https://www.operalogica.com)
+[www.operalogica.com](https://www.operalogica.com)
 
 ---
 
@@ -18,7 +18,7 @@ Condividiamo la passione per l’innovazione e sviluppiamo soluzioni tecnologich
 
 Domina la trasformazione digitale con l’AI.  
 
-🚀 Richiedi una demo: [www.bepeople.tech](https://www.bepeople.tech)
+Richiedi una demo: [www.bepeople.tech](https://www.bepeople.tech)
 
 ---
 
